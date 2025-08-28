@@ -1,0 +1,174 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+{% block content %}
+<section class="content">
+    <div class="container-fluid">
+
+        <!-- Stat Boxes -->
+        <div class="row text-center">
+            <div class="col-lg-3 col-6">
+                <div class="small-box shadow-lg rounded-lg bg-gradient-info">
+                    <div class="inner">
+                        <h3 style="font-weight:600; font-size:32px;">{{total_students}}</h3>
+                        <p style="font-size:16px;">👩‍🎓 Total Students</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-6">
+                <div class="small-box shadow-lg rounded-lg bg-gradient-success">
+                    <div class="inner">
+                        <h3 style="font-weight:600; font-size:32px;">{{total_attendance}}</h3>
+                        <p style="font-size:16px;">📊 Attendance Taken</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box shadow-lg rounded-lg bg-gradient-warning">
+                    <div class="inner">
+                        <h3 style="font-weight:600; font-size:32px;">{{total_leave}}</h3>
+                        <p style="font-size:16px;">📝 Leave Applications</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box shadow-lg rounded-lg bg-gradient-danger">
+                    <div class="inner">
+                        <h3 style="font-weight:600; font-size:32px;">{{total_subject}}</h3>
+                        <p style="font-size:16px;">📚 Subjects</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-lg rounded-xl">
+                    <div class="card-header bg-secondary text-white">
+                        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Attendance vs Leave</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="pieChart" style="height: 300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card border-0 shadow-lg rounded-xl">
+                    <div class="card-header bg-secondary text-white">
+                        <h3 class="card-title"><i class="fas fa-chart-bar"></i> Attendance by Subject</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="barChart" style="height: 300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block custom_js %}
+<script>
+$(document).ready(function(){
+    // Pie Chart
+    var pieChartCanvas = $('#pieChart').get(0).getContext('2d');
+    var pieChart = new Chart(pieChartCanvas, {
+        type: 'pie',
+        data: {
+            labels: ['Attendance', 'Leave'],
+            datasets: [{
+                data:[{{total_attendance}}, {{total_leave}}],
+                backgroundColor : ['#28a745', '#ffc107'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 14, weight: 'bold' } }
+                }
+            }
+        }
+    });
+
+    // Bar Chart
+    var subject_list = {{ subject_list|safe|escape }};
+    var attendance_list = {{ attendance_list }};
+    var barChartCanvas = $('#barChart').get(0).getContext('2d');
+    var barChart = new Chart(barChartCanvas, {
+        type: 'bar',
+        data: {
+            labels: subject_list,
+            datasets: [{
+                label: 'Attendance Per Subject',
+                backgroundColor: '#17a2b8',
+                borderRadius: 8,
+                data: attendance_list
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true }
+            }
+        }
+    });
+});
+</script>
+
+<!-- Firebase Setup -->
+<script src="https://www.gstatic.com/firebasejs/7.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.23.0/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-messaging.js"></script>
+
+<script>
+    var firebaseConfig = {
+        apiKey: "AIzaSyBarDWWHTfTMSrtc5Lj3Cdw5dEvjAkFwtM",
+        authDomain: "sms-with-django.firebaseapp.com",
+        databaseURL: "https://sms-with-django.firebaseio.com",
+        projectId: "sms-with-django",
+        storageBucket: "sms-with-django.appspot.com",
+        messagingSenderId: "945324593139",
+        appId: "1:945324593139:web:03fa99a8854bbd38420c86",
+        measurementId: "G-2F2RXTL9GT"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging();
+
+    function InitializeFireBaseMessaging() {
+        messaging.requestPermission()
+        .then(() => messaging.getToken())
+        .then((token) => sendToServer(token))
+        .catch((err) => console.log(err));
+    }
+
+    messaging.onMessage((payload) => {
+        const notificationOption = {
+            body: payload.notification.body,
+            icon: payload.notification.icon,
+        };
+        if (Notification.permission === 'granted') {
+            new Notification(payload.notification.title, notificationOption);
+        }
+    });
+
+    function sendToServer(token){
+        $.post("{% url 'staff_fcmtoken' %}", { token: token });
+    }
+    
+    InitializeFireBaseMessaging();
+</script>
+{% endblock custom_js %}

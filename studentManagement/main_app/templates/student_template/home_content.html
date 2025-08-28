@@ -1,0 +1,98 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+{% block content %}
+<section class="content">
+    <div class="container-fluid">
+
+        <!-- Stat Boxes -->
+        <div class="row">
+            <!-- Attendance -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box" style="background: linear-gradient(135deg, #00c6ff, #0072ff); border-radius: 1rem; color:white; box-shadow:0 4px 15px rgba(0,0,0,0.2)">
+                    <div class="inner">
+                        <h3 style="font-family: 'Poppins', sans-serif; font-weight:600;">{{total_attendance}}</h3>
+                        <p>Total Attendance</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-calendar-check" style="opacity:0.8; font-size:55px;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Present -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box" style="background: linear-gradient(135deg, #56ab2f, #a8e063); border-radius: 1rem; color:white; box-shadow:0 4px 15px rgba(0,0,0,0.2)">
+                    <div class="inner">
+                        <h3 style="font-family: 'Poppins', sans-serif; font-weight:600;">{{ percent_present }}<sup style="font-size: 20px">%</sup></h3>
+                        <p>Percentage Present</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-user-check" style="opacity:0.8; font-size:55px;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Absent -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box" style="background: linear-gradient(135deg, #ff416c, #ff4b2b); border-radius: 1rem; color:white; box-shadow:0 4px 15px rgba(0,0,0,0.2)">
+                    <div class="inner">
+                        <h3 style="font-family: 'Poppins', sans-serif; font-weight:600;">{{percent_absent}}<sup style="font-size: 20px">%</sup></h3>
+                        <p>Percentage Absent</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-user-times" style="opacity:0.8; font-size:55px;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subjects -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box" style="background: linear-gradient(135deg, #f7971e, #ffd200); border-radius: 1rem; color:white; box-shadow:0 4px 15px rgba(0,0,0,0.2)">
+                    <div class="inner">
+                        <h3 style="font-family: 'Poppins', sans-serif; font-weight:600;">{{total_subject}}</h3>
+                        <p>Total Subjects</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-book-open" style="opacity:0.8; font-size:55px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card" style="border-radius: 1rem; box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+                    <div class="card-header bg-secondary text-white rounded-top">
+                        <h3 class="card-title">{{page_title}} - Donut Chart</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="attendanceData" style="min-height: 250px; height: 250px; width:100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card" style="border-radius: 1rem; box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+                    <div class="card-header bg-secondary text-white rounded-top">
+                        <h3 class="card-title">{{page_title}} - Bar Chart</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="attendanceStatistics" style="min-height: 250px; height: 250px; width:100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock content %}
+
+{% block custom_js %}
+<!-- Keep your same JS logic -->
+{{ block.super }}
+{% endblock custom_js %}
+
+<!-- Custom Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
